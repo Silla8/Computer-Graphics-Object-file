@@ -110,13 +110,13 @@ class Object{
 
             context.beginPath();
 
-            context.moveTo(this.#vertices[face[0]][0], this.#vertices[face[0]][1]);
+            context.moveTo(this.#vertices[face[0]][0], context.canvas.height-this.#vertices[face[0]][1]); // flipping
 
             for(let j=1; j < face.length; j++){
 
                 let v = this.#vertices[face[j]];
 
-                context.lineTo(v[0], v[1]);
+                context.lineTo(v[0], context.canvas.height-v[1]);
             }
             context.stroke();
         }
@@ -177,11 +177,11 @@ function onKeyDown(e){
             model.DrawOnCanvas(context);
             break;
         case 'ArrowRight': // rotate
-            model.rotateY +=0.2;
+            model.rotateY +=0.1;
             model.DrawOnCanvas(context);
             break;
         case 'ArrowLeft':
-            model.rotateY -=0.2;
+            model.rotateY -=0.1;
             model.DrawOnCanvas(context);
             break;
     }
