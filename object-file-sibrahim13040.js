@@ -21,8 +21,12 @@ class Object{
     faces;
     fileReader;
     onloadend;
+    onRotate;
     scaleFactor;
     rotateY;
+    rotateX;
+    rotateZ;
+   
     
     constructor(){
         // attributes initialization
@@ -32,11 +36,18 @@ class Object{
         this.fileReader = new FileReader();
         this.scaleFactor = 1;
         this.rotateY =0;
+        this.rotateY =0;
+        this.rotateZ = 0;
         //adding event listener on fileReader if loading the file content finishes.
         this.fileReader.onloadend = this.#onLoadEnd; 
     }
 
     #onLoadEnd = (e)=>{
+       
+        this.scaleFactor = 1;
+        this.rotateX =0;
+        this.rotateY = 0;
+        this.rotateZ = 0;
         //getting lines from the overall text read
         var lines = e.target.result.split('\n');
         //clear vertices and faces
@@ -84,7 +95,7 @@ class Object{
         //transformation on the vertices
         for(let i=0; i < this.vertices.length; i++){
 
-            let x = this.vertices[i][0];
+            let x =  this.vertices[i][0];
             let y = this.vertices[i][1];
             let z = this.vertices[i][2];
 
@@ -93,11 +104,24 @@ class Object{
             x *= this.scaleFactor;
             y *= this.scaleFactor;
             z *= this.scaleFactor;
-
-            //rotation around y
+        
+                    
+            //rotate around y
+            let tempX = x;
             x = x*Math.cos(this.rotateY) - z*Math.sin(this.rotateY);
-            z = x*Math.sin(this.rotateY) + z*Math.cos(this.rotateY);
+            z = tempX*Math.sin(this.rotateY) + z*Math.cos(this.rotateY);
+
             
+            //rotation around x
+            let tempY = y;
+            y = y*Math.cos(this.rotateX) - z*Math.sin(this.rotateX);
+            z = tempY*Math.sin(this.rotateX) + z*Math.cos(this.rotateX);
+           
+            //rotation around z
+            let temp = x;
+            x = x*Math.cos(this.rotateZ) - y*Math.sin(this.rotateZ);
+            y = temp*Math.sin(this.rotateZ) + y*Math.cos(this.rotateZ);
+
             // translation on vertices to center it on the screen 
             x += offsetX;
             y += offsetY;
@@ -105,21 +129,23 @@ class Object{
             this.#vertices.push([x , y , z]);
         }
 
+        
         for(let i= 0 ; i <this.faces.length; i++){
 
             let face = this.faces[i];
 
             context.beginPath();
 
-            context.moveTo(this.#vertices[face[0]][0], context.canvas.height-this.#vertices[face[0]][1]); // flipping
+            context.moveTo(this.#vertices[face[0]][0], context.canvas.height - this.#vertices[face[0]][1]); 
 
             for(let j=1; j < face.length; j++){
 
                 let v = this.#vertices[face[j]];
 
-                context.lineTo(v[0], context.canvas.height-v[1]);
+                context.lineTo(v[0], context.canvas.height - v[1]);
+                
             }
-            context.stroke();
+            context.fill();
         }
     }
 
@@ -153,6 +179,8 @@ function onLoadEnd(){
     model.DrawOnCanvas(context);
 }
 
+
+
 function onChange(e) {
     console.log("onChange... Begin");
     // Get the name of the selected file
@@ -177,7 +205,7 @@ function onKeyDown(e){
             model.scaleFactor /=1.1;
             model.DrawOnCanvas(context);
             break;
-        case 'ArrowRight': // rotate
+        case 'ArrowRight': // rotate around y-axis
             model.rotateY +=0.1;
             model.DrawOnCanvas(context);
             break;
@@ -185,6 +213,23 @@ function onKeyDown(e){
             model.rotateY -=0.1;
             model.DrawOnCanvas(context);
             break;
+        case 'ArrowUp': // rotate around x-axis
+            model.rotateX +=0.1;
+            model.DrawOnCanvas(context);
+            break;
+        case 'ArrowDown':
+            model.rotateX -=0.1;
+            model.DrawOnCanvas(context);
+            break;
+        case 'z': // rotate around z-axis
+            model.rotateZ +=0.1;
+            model.DrawOnCanvas(context);
+            break;
+        case 's':
+            model.rotateZ -=0.1;
+            model.DrawOnCanvas(context);
+            break;
+       
     }
 }
 
